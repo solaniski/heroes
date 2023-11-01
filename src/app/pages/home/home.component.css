@@ -1,0 +1,21 @@
+.hero-element{
+    position: relative;
+}
+
+.hero-options{
+    width: 100%;
+    padding: 5px;
+    position: absolute;
+    text-align: right;
+    z-index: 1;
+    background: rgba(255, 255, 255, .1); 
+}
+
+.hero-options mat-icon{
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.hero-options mat-icon:hover{
+    color: white;
+}

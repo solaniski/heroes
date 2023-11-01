@@ -1,0 +1,18 @@
+mat-form-field{
+    max-width: 700px;
+    width: 100%;
+}
+
+img {
+    width: 100%;
+    max-width: 700px;
+    margin-top: 50px;
+}
+
+.head-buttons button{
+    margin: 10px;
+}
+
+sub {
+    color: #f44336;
+}

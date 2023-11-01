@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Delete Hero</h1>
+<ng-container *ngIf="loading">
+    <div mat-dialog-content>
+        Deleting...
+    </div>
+</ng-container>
+<ng-container *ngIf="!loading">
+    <div mat-dialog-content >
+    Would you like to delete {{data.nickname}}?
+    </div>
+    <div mat-dialog-actions>
+    <button mat-button mat-dialog-close>No</button>
+    <button mat-button cdkFocusInitial (click)="deleteHero(data.id)">Ok</button>
+    </div>
+</ng-container>

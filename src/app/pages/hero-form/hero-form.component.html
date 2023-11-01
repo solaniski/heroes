@@ -1,0 +1,56 @@
+<div class="bg-white">
+    <div *ngIf="loading" class="h-screen flex items-center justify-center">
+        <mat-spinner></mat-spinner>
+    </div>
+    <div *ngIf="!loading" class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+
+
+        <div class="lg:flex lg:items-center lg:justify-between">
+            <div class="min-w-0 flex-1">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{{pageTitle}}</h2>
+            </div>
+            <div class="mt-5 flex lg:ml-4 lg:mt-0 head-buttons">
+                <button routerLink="/" type="button" mat-stroked-button color="basic">
+                    <mat-icon aria-hidden="false" aria-label="arrow_back icon" fontIcon="arrow_back"></mat-icon>
+                    Back
+                </button>
+                <button type="button" mat-stroked-button color="basic" (click)="saveHero()">
+                <mat-icon aria-hidden="false" aria-label="save icon" fontIcon="save"></mat-icon>
+                Save Hero
+                </button>
+            </div>
+        </div>
+        <br>
+        <form id="heroForm" [formGroup]="heroForm">
+            <mat-form-field>
+                <mat-label>Nickname</mat-label>
+                <input formControlName="nickname" value="{{nickname?.value | uppercase}}" matInput>
+                <ng-container *ngIf="!nickname?.valid && (nickname?.dirty || nickname?.touched)">
+                    <sub *ngIf="nickname?.errors?.['required']">*Nickname is required</sub>
+                    <sub *ngIf="nickname?.errors?.['maxlength']">*Name must have less than 35 characters</sub>
+                </ng-container>
+            </mat-form-field>
+            <br>
+            <mat-form-field>
+                <mat-label>Name</mat-label>
+                <input formControlName="name" value="{{name?.value | uppercase}}" matInput>
+            </mat-form-field>
+            <br>
+            <mat-form-field>
+                <mat-label>Description</mat-label>
+                <textarea formControlName="description" value="{{description?.value}}" matInput></textarea>
+            </mat-form-field>
+        </form>
+        
+        <button mat-flat-button color="primary" type="button" mat-raised-button (click)="fileInput.click()">Upload new image</button>
+        <input hidden (change)="onFileSelected($event)" #fileInput type="file">
+        <span class="file-name"> {{selectedFile?.name}}</span>
+        <img src="{{getImage(id,FileUrl)}}" onerror="src='/assets/images/heroes/generic.jpg'" />
+
+        <br>
+        <div *ngIf="error" class="w-[700px] p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            <span class="font-medium">Error!</span><br> Hero changes can't be applied <br> Error code: <b>{{errorText}}</b>
+        </div>
+
+    </div>
+</div>
