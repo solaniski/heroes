@@ -1,0 +1,46 @@
+<!-- HEADER -->
+<div class="fixed w-full z-10">
+    <nav class="flex items-center justify-between flex-wrap bg-indigo-500 p-6">
+      <div class="flex items-center flex-shrink-0 text-white mr-6">
+        <img src="/assets/images/super-angular-logo.svg" width="54" height="54" class="h-10 w-10 mr-2" viewBox="0 0 54 54" alt="Super Angular Logo">
+        <span class="font-semibold text-xl tracking-tight mr-2">Heroes</span> <sub>by FSC</sub>
+      </div>
+      <div class="block lg:hidden">
+        <button (click)="isOpen = !isOpen" class="flex items-center px-3 py-2">
+          @if(!isOpen){
+          <svg class="fill-current h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="#fff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M4 6l16 0" />
+            <path d="M4 12l16 0" />
+            <path d="M4 18l16 0" />
+          </svg>
+          } @else {
+          <svg class="fill-current h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="#fff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M18 6l-12 12" />
+            <path d="M6 6l12 12" />
+          </svg>
+          }
+        </button>
+      </div>
+      <div [ngClass]="isOpen ? 'block' : 'hidden'" class="w-full flex-grow lg:flex lg:items-center lg:w-auto">
+        <div class="text-sm lg:flex-grow">
+          <a routerLink="/" class="block mt-4 lg:inline-block lg:mt-0 text-indigo-200 hover:text-white mr-4">
+            Home
+          </a>
+          <a routerLink="/add-hero" class="block mt-4 lg:inline-block lg:mt-0 text-indigo-200 hover:text-white mr-4">
+            + Add new hero
+          </a>
+        </div>
+        <form class="w-full max-w-sm" id="searchForm" [formGroup]="searchForm">
+          <div class="flex items-center border-b border-indigo-100 py-2">
+            <input formControlName="searchValue" class="appearance-none bg-transparent border-none w-full text-gray-200 mr-3 py-1 px-2 leading-tight focus:outline-none" type="text" placeholder="Search a hero" aria-label="Full name">
+            <button (click)="formAction()" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-indigo-500 hover:bg-white mt-4 lg:mt-0" type="submit">
+              Search
+            </button>
+          </div>
+        </form>
+      </div>
+    </nav>
+  </div>
+  <!-- HEADER END -->

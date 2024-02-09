@@ -1,48 +1,56 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Hero } from '../models/heromodel';
+import { Observable, map } from 'rxjs';
+import { Hero, PaginatedHeroes } from '../models/heromodel';
+import { environment } from '../../environments/environments';
 
 @Injectable({
   providedIn: 'root',
 })
-
 
 export class ContentService {
   constructor(
     private http: HttpClient
     ) {}
 
-  getHeroes(): Observable<Hero>{
-    let heroes: Observable<any> = this.http.get('/api/heroes');
+  public url = environment.apiUrl;
+
+  getHeroes(page:number,pageSize:number): Observable<PaginatedHeroes>{
+    const heroes: Observable<PaginatedHeroes> = this.http.get<PaginatedHeroes>(this.url+`?_page=${page}&_per_page=${pageSize}`);
     return heroes;
   }
 
   getHero(id:string): Observable<Hero>{
-    let hero: Observable<any> = this.http.get('/api/heroes/'+id);
+    const hero: Observable<Hero> = this.http.get<Hero>(this.url+'/'+id);
     return hero;
   }
 
-  filterByName(search:string): Observable<Hero>{
-    let heroes: Observable<any> = this.http.get('/api/heroes?name_like='+search);
-    return heroes;
-  }
+  searchHero(search:string): Observable<Hero[]>{
+    return this.http.get<Hero[]>(this.url).pipe(
+      map(heroes => {
+        const byName = heroes.filter(hero => hero.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
+        const byNickName = heroes.filter(hero => hero.nickname.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
 
-  filterByNickName(search:string): Observable<Hero>{
-    let heroes: Observable<any> = this.http.get('/api/heroes?nickname_like='+search);
-    return heroes;
+        const combinedResults = [...byName, ...byNickName];
+        const uniqueHeroes: Hero[] = Array.from(new Set(combinedResults.map(hero => hero.id)))
+          .map(id => combinedResults.find(hero => hero && hero.id === id))
+          .filter(hero => !!hero) as Hero[];
+
+        return uniqueHeroes;
+      })
+    )  
   }
 
   addHero(hero: Hero): Observable<Hero> {
-    return this.http.post<Hero>('/api/heroes', hero);
+    return this.http.post<Hero>(this.url, hero);
   }
 
   editHero(hero: Hero, id:string): Observable<Hero> {
-    return this.http.put<Hero>('/api/heroes/'+id, hero);
+    return this.http.put<Hero>(this.url+'/'+id, hero);
   }
 
   deleteHero(id:string){
-    return this.http.delete('/api/heroes/'+id);
+    return this.http.delete(this.url+'/'+id);
   }
 
   getImage(id:string,picture:string){

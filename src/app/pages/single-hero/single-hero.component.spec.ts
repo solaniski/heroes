@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientModule } from '@angular/common/http';
+import { RouterTestingModule } from '@angular/router/testing';
 import { SingleHeroComponent } from './single-hero.component';
 
 describe('SingleHeroComponent', () => {
@@ -8,7 +9,11 @@ describe('SingleHeroComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [SingleHeroComponent]
+      imports: [
+        SingleHeroComponent,
+        HttpClientModule,
+        RouterTestingModule
+      ]
     });
     fixture = TestBed.createComponent(SingleHeroComponent);
     component = fixture.componentInstance;

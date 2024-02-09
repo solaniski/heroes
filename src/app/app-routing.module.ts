@@ -10,6 +10,10 @@ const routes: Routes = [
     component: HomeComponent,
   },
   {
+    path: 'search/:q',
+    component: HomeComponent,
+  },
+  {
     path: 'add-hero',
     component: HeroFormComponent
   },

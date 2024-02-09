@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { HeroFormComponent } from './pages/hero-form/hero-form.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SingleHeroComponent } from './pages/single-hero/single-hero.component';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,9 @@ import { SingleHeroComponent } from './pages/single-hero/single-hero.component';
     FormsModule,
     ReactiveFormsModule
   ],
-  providers: [],
+  providers: [
+    provideAnimationsAsync()
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

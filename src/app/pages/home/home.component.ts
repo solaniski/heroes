@@ -1,129 +1,113 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { NgFor, CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { ContentService } from 'src/app/services/content.service';
+import { NgFor, NgIf, CommonModule } from '@angular/common';
+import { RouterModule, ActivatedRoute } from '@angular/router';
+import { ContentService } from '../../services/content.service';
+import { LoadingService } from '../../services/loading.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { FormControl, FormGroup } from '@angular/forms';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { forkJoin, map } from 'rxjs';
+import { PageEvent, MatPaginator } from '@angular/material/paginator';
+import { Observable, map, tap } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
+import { Hero } from '../../models/heromodel';
+import { HeaderComponent } from '../../layouts/header/header.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
   standalone: true,
-  imports: [ NgFor, CommonModule, RouterModule, MatIconModule, MatButtonModule, MatDialogModule, FormsModule, ReactiveFormsModule, MatProgressSpinnerModule],
+  imports: [ 
+    NgFor, 
+    NgIf,
+    CommonModule, 
+    RouterModule, 
+    MatIconModule, 
+    MatButtonModule, 
+    MatDialogModule, 
+    MatProgressSpinnerModule,
+    MatPaginator,
+    HeaderComponent
+  ],
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
 
   constructor(
     private contentService: ContentService,
+    private loadingService: LoadingService,
+    private route: ActivatedRoute,
     public dialog: MatDialog
   ) {}
 
-  public heroes:any=[];
-  public subscription:any;
+  public query:string='';
+  public heroes$!:Observable<Hero[]>;
   public paginationStart:number=0;
   public paginationEnd:number=8;
   public loading:boolean=true;
-
-  public searchForm:FormGroup = new FormGroup({
-    searchValue:     new FormControl(''),
-  });
+  public total:number=0;
+  public pageSize=8;
+  public currentPage=1;
+  public formValue='';
 
   ngOnInit() {
-    this.getHeroes();
+
+    this.loadingService.loading$.subscribe(loading => {
+      this.loading = loading;
+    });
+
+    this.query = this.route.snapshot.params['q'];
+    if(this.query){
+      this.formValue = this.query;
+    }
+    this.searchHero();
+  }
+
+  getFormAction(evt:string){
+    this.currentPage = 1;
+    this.formValue = evt;
+    this.searchHero();
   }
 
   searchHero(){
-    this.loading = true;
-    if(this.searchValue?.value == ''){
+    if(this.formValue == ''){
       this.getHeroes();
     } else {
-      let byName      = this.contentService.filterByName(this.searchValue?.value);
-      let byNickName  = this.contentService.filterByNickName(this.searchValue?.value); 
-
-      forkJoin([byName, byNickName])
-      .pipe(map(data => data.reduce((result:any,arr:any)=>[...result,...arr],[])))
-      .subscribe(data =>{
-
-        this.heroes = data;
-        this.loading = false;
-      
-      });
+      this.heroes$ = this.contentService.searchHero(this.formValue).pipe(
+        tap(res => {
+          this.total = res.length;
+        }),
+        map(heroes => heroes.slice((this.pageSize*this.currentPage)-this.pageSize,this.pageSize*this.currentPage))
+      )
     }
   }
 
-  get searchValue(){
-    return this.searchForm.get('searchValue');
+  
+
+
+  getHeroes() {
+    this.heroes$ = this.contentService.getHeroes(this.currentPage, this.pageSize)
+      .pipe(
+        tap(res => {
+          this.total = res.items;
+        }),
+        map(res => res.data)
+      )
   }
 
-  async getHeroes(){
-    this.subscription = this.contentService.getHeroes().subscribe((res:any)=> {
-      this.heroes = res;
-      this.loading = false;
-    });
+  // Función que nos ayuda a manejar el uso del paginador de angular material
+  pageChanged(e: PageEvent) {
+    this.currentPage = e.pageIndex+1;
+    this.searchHero();
   }
 
   getImage(id:string,picture:string){
     return this.contentService.getImage(id,picture);
   }
 
-  ngOnDestroy(){
-    this.subscription.unsubscribe();
-  }
-
-  // Pagination functions
-
-  checkPagination(i:number){
-    let page = 0;
-    let res = i % 8;
-
-    if(res == 0){
-      page = i/8;
-    }
-    return page;
-  }
-
-  getLastPage(){
-    return Math.ceil(this.heroes.length/8);
-  }
-
-  changePage(i:number){
-    this.paginationStart = i-8;
-    this.paginationEnd = i;
-  }
-
-  lastPagination(){
-    let prevElements = Math.floor(this.heroes.length/8);
-    this.paginationStart = prevElements*8;
-    this.paginationEnd = this.heroes.length;
-  }
-
-  nextPagination(){
-    this.paginationStart += 8;
-    this.paginationEnd += 8;
-  }
-
-  prevPagination(){
-    let totalElements = this.paginationEnd - this.paginationStart;
-    if(totalElements < 7){
-      this.paginationEnd = this.paginationEnd - totalElements;
-      this.paginationStart = this.paginationEnd-8;
-    } else {
-      this.paginationStart -= 8;
-      this.paginationEnd -= 8;
-    }
-  }
-
   // DIALOG
   openDialog(enterAnimationDuration:string, exitAnimationDuration:string, nickname:string, id:string): void {
-    this.dialog.open(HomeDialog, {
+    this.dialog.open(HomeDialogComponent, {
       data: {
         nickname: nickname,
         id: id
@@ -136,26 +120,27 @@ export class HomeComponent {
 
 }
 
-
 @Component({
-  selector: 'home-dialog',
+  selector: 'app-dialog',
   templateUrl: 'home.dialog.html',
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule],
 })
-export class HomeDialog {
+export class HomeDialogComponent {
   constructor(
     private contentService: ContentService,
     @Inject(MAT_DIALOG_DATA) public data: {nickname:string, id:string},
-    public dialogRef: MatDialogRef<HomeDialog>) {}
+    public dialogRef: MatDialogRef<HomeDialogComponent>) {}
 
     public loading:boolean=false;
 
     deleteHero(id:string){
-      this.loading=true;
       this.contentService.deleteHero(id).subscribe(
-        res => {
+        () => {
           window.location.reload();
+        }, 
+        (error) => {
+          console.error('Error deleting hero:', error);
         }
     )}
   

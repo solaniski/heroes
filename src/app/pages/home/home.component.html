@@ -1,115 +1,74 @@
+<app-header [formValue]="formValue" (formValueChange)="getFormAction($event)"></app-header>
+
 <div class="bg-white">
-    <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-
-      <div class="lg:flex lg:items-center lg:justify-between">
-        <div class="min-w-0 flex-1">
-          <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">Heroes List</h2>
+  <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+    <div class="mt-20">
+      @if(loading) {
+        <!-- LOADING SPINNER -->
+        <div class="h-screen flex items-center justify-center">
+          <mat-spinner></mat-spinner>
         </div>
-        
-        <div class="mt-5 flex lg:ml-4 lg:mt-0 mb-5">
-            <button routerLink="/add-hero" type="button" mat-stroked-button color="basic">
-              <mat-icon aria-hidden="false" aria-label="add icon" fontIcon="add"></mat-icon>
-              Add Hero
-            </button>
-        </div>
-        <div class="mt-5 flex lg:ml-4 lg:mt-0 mb-5">
-          
-          <form id="searchForm" [formGroup]="searchForm">
-            <label for="hs-trailing-button-add-on-with-icon-and-button" class="sr-only">Label</label>
-            <div class="relative flex rounded-md shadow-sm">
-              <input formControlName="searchValue" type="text" id="hs-trailing-button-add-on-with-icon-and-button" name="hs-trailing-button-add-on-with-icon-and-button" class="py-3 px-4 pl-11 block w-full border-gray-200 shadow-sm rounded-l-md text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400">
-              <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none z-20 pl-4">
-                <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                </svg>
+        <!-- LOADING SPINNER END -->
+        } @else {
+      <!-- GRID -->
+        <div class="mb-20 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+          @for(hero of heroes$ | async; track hero) {
+              <div class="block max-w-[18rem] rounded-lg bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700">
+                <div class="relative overflow-hidden bg-cover bg-no-repeat cursor-pointer" routerLink="/hero/{{hero.id}}">
+                  <img
+                    class="rounded-t-lg h-[200px] w-[100%] object-cover"
+                    src="{{getImage(hero.id,hero.picture)}}" 
+                    onerror="src='/assets/images/heroes/generic.jpg'" 
+                    alt="{{hero.name}}" 
+                    alt=""
+                    />
+                </div>
+                <div class="p-6 cursor-pointer" routerLink="/hero/{{hero.id}}">
+                  <h2>{{hero.nickname}}</h2>
+                  <h5
+                    class="text-xl font-medium leading-tight text-neutral-800 dark:text-neutral-50">
+                    {{hero.name}}
+                  </h5>
+                </div>
+                <div class="p-6 pt-0">
+                  <a
+                    type="button"
+                    routerLink="/edit-hero/{{hero.id}}"
+                    class="items-center pointer-events-auto mr-5 inline-block cursor-pointer rounded text-base font-normal leading-normal text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 focus:outline-none focus:ring-0 active:text-primary-700 hover:text-green-600">
+                    <mat-icon class="text-base" style="display: inline" aria-hidden="false" aria-label="add edit" fontIcon="edit" title="Edit hero"></mat-icon> Edit
+                  </a>
+                  <a
+                    type="button"
+                    role="button" 
+                    tabindex="0" 
+                    (keypress)="openDialog('150ms','150ms', hero.nickname, hero.id)"
+                    (click)="openDialog('150ms','150ms', hero.nickname, hero.id)"
+                    class="pointer-events-auto inline-block cursor-pointer rounded text-base font-normal leading-normal text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 focus:outline-none focus:ring-0 active:text-primary-700 hover:text-red-600">
+                    <mat-icon class="text-base" style="display: inline" aria-hidden="false" aria-label="add delete" fontIcon="delete" title="Delete hero"></mat-icon> Delete
+                  </a>
+                </div>
               </div>
-              <button (click)="searchHero()" type="submit" class="py-3 px-4 inline-flex flex-shrink-0 justify-center items-center rounded-r-md border border-transparent font-semibold bg-indigo-500 text-white hover:bg-indigo-600 focus:z-10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">Search</button>
+            } @empty {
+            <div class="w-max p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+              <span class="font-medium">Hero not found!</span><br> Sorry we can't reach any hero matching with: <b>{{formValue}}</b> <br> Check over the search string and try again.
             </div>
-          </form>
+          }
         </div>
-    </div>
-
-    <!-- GRID -->
-      <div *ngIf="!loading" class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-        <ng-container *ngFor="let hero of heroes.slice(paginationStart,paginationEnd)">
-            <div class="hero-element">
-              <span class="hero-options">
-                <mat-icon routerLink="/edit-hero/{{hero.id}}" aria-hidden="false" aria-label="add edit" fontIcon="edit" title="Edit hero"></mat-icon> 
-                <mat-icon aria-hidden="false" aria-label="add delete" fontIcon="delete" title="Delete hero" (click)="openDialog('150ms','150ms', hero.nickname, hero.id)"></mat-icon>
-              </span>
-              <a href="/hero/{{hero.id}}" class="group">
-                  <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7 hero-image">
-                      <img src="{{getImage(hero.id,hero.picture)}}" onerror="src='/assets/images/heroes/generic.jpg'" alt="{{hero.name}}" alt="{{hero.name}}" class="h-80 w-full object-cover object-center group-hover:opacity-75">
-                  </div>
-                  <p class="mt-1 mb-px text-lg font-medium text-gray-900">{{hero.nickname}}</p>
-                  <p class="mt-px text-sm text-gray-700 p-0">{{hero.name}}</p>
-              </a>
-            </div>
-        </ng-container>
-        <div *ngIf="heroes.length == 0" class="w-max p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
-          <span class="font-medium">Hero not found!</span><br> Sorry we can't reach any hero matching with: <b>{{searchValue?.value}}</b> <br> Check over the search string and try again.
-        </div>
+      <!-- GRID END-->
+      @if(total) {
+      <div class="paginator">
+        <mat-paginator
+            #paginator
+            [length]="total"
+            [pageSize]="pageSize"
+            [pageIndex]="currentPage-1"
+            (page)="pageChanged($event)"
+            aria-label="Select page">
+        </mat-paginator>
       </div>
-    <!-- GRID END-->
+      }
 
-    <!-- LOADING SPINNER -->
-    <div *ngIf="loading" class="h-screen flex items-center justify-center">
-      <mat-spinner></mat-spinner>
+      } 
     </div>
-    <!-- LOADING SPINNER END -->
-
-    </div>
+  </div>
 </div>
-
-<!-- PAGINATION -->
-<div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-    <div class="flex flex-1 justify-between sm:hidden">
-      <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
-      <a href="#" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</a>
-    </div>
-    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-      <div>
-        <p class="text-sm text-gray-700">
-          Showing
-          <span class="font-medium">{{paginationStart+1}}</span>
-          to
-          <span class="font-medium">{{paginationEnd}}</span>
-          of
-          <span class="font-medium">{{heroes.length}}</span>
-          results
-        </p>
-      </div>
-      <div>
-        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-          <a *ngIf="paginationStart > 0" (click)="prevPagination()" class="cursor-pointer inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-            <span class="sr-only">Previous</span>
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
-            </svg>
-          </a>
-          <ng-container *ngFor="let hero of heroes; index as i">
-            <ng-container *ngIf="checkPagination(i)>0">
-                <a *ngIf="i === paginationEnd; else anotherPage" (click)="changePage(i)" aria-current="page" class="cursor-pointer relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{checkPagination(i)}}</a>
-                <ng-template #anotherPage>
-                    <a (click)="changePage(i)" class="cursor-pointer inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">{{checkPagination(i)}}</a>
-                </ng-template>
-            </ng-container>
-          </ng-container>
-          <!-- Checking uncompleted last page -->
-          <ng-container *ngIf="checkPagination(heroes.length) === 0">
-            <a *ngIf="heroes.length === paginationEnd; else anotherPage" (click)="lastPagination()" aria-current="page" class="cursor-pointer relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{{getLastPage()}}</a>
-            <ng-template #anotherPage>
-                <a (click)="lastPagination()" class="cursor-pointer inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">{{getLastPage()}}</a>
-            </ng-template>
-          </ng-container>
-          <a *ngIf="paginationEnd < heroes.length" (click)="nextPagination()" class="cursor-pointer relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-            <span class="sr-only">Next</span>
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
-            </svg>
-          </a>
-        </nav>
-      </div>
-    </div>
-</div>
-<!-- PAGINATION END -->
