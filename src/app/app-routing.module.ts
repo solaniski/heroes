@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { HeroFormComponent } from './pages/hero-form/hero-form.component';
 import { SingleHeroComponent } from './pages/single-hero/single-hero.component';
+import { NotFoundComponent } from './pages/not-found/not-found.component';
 
 const routes: Routes = [
   {
@@ -24,6 +25,10 @@ const routes: Routes = [
   {
     path: 'edit-hero/:id',
     component: HeroFormComponent
+  },
+  {
+    path: '**',
+    component: NotFoundComponent
   }
 ];
 

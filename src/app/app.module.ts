@@ -5,7 +5,7 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HomeComponent } from './pages/home/home.component';
 import { CommonModule } from '@angular/common';
-
+import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { HttpClientModule } from '@angular/common/http';
 import { HeroFormComponent } from './pages/hero-form/hero-form.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -26,7 +26,8 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
     HeroFormComponent,
     CommonModule,
     HttpClientModule,
-    SingleHeroComponent
+    SingleHeroComponent,
+    NotFoundComponent
   ],
   exports: [
     CommonModule,
